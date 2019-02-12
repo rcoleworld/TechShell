@@ -30,23 +30,23 @@ char* get_user_input();
 // function to tokenize input
 void token_input(char c[]);
 
+/*******************
+* STRUCTS
+*******************/
+struct command
+{
+
+};
 
 /************
 *   MAIN
 ************/
 int main()
 {
-    // loop is ran until "exit" is entered by the user
-    /*
-    do
-    {
-        printf("\n%s $", get_directory());
-    }
-    while(strcmp("exit", get_user_input()) != 0);
-    */
+    char* input;
 
-    printf("\n%s $", get_directory());
-    token_input(get_user_input());
+    printf("\n%s $ ", get_directory());
+    input = get_user_input( );
 
     return 0;
 }
