@@ -17,6 +17,14 @@
 #define DEBUG 0
 // Max size of user input
 #define MAX_SIZE 256
+/*******************
+*     STRUCTS
+*******************/
+struct ShellCommand
+{
+    char* command;
+    char* arguments;
+};
 
 /***********************
 * PROTOTYPE FUNCTIONS
@@ -27,16 +35,10 @@ void print_directory();
 char* get_directory();
 // function that returns user input
 char* get_user_input();
-// function to tokenize input
+// function to tokenizes input
 void token_input(char c[]);
-
-/*******************
-* STRUCTS
-*******************/
-struct command
-{
-
-};
+// function to execute commands
+void execute_command(struct ShellCommand s);
 
 /************
 *   MAIN
@@ -44,8 +46,10 @@ struct command
 int main()
 {
     char* input;
+    struct ShellCommand command;
 
-    printf("\n%s $ ", get_directory());
+    chdir(getenv("HOME"));
+    printf("\n%s$ ", get_directory());
     input = get_user_input( );
 
     return 0;
@@ -79,20 +83,26 @@ char* get_user_input()
 
 /************************************
 * Function that tokenizes input to
-* be handled by later functions
+* be handled by later functions.
+* This needs to split it into
+* arguments and the command.
+* For example:
+* $ ls -l -a -h ~/Documents.
+*
+* Command: ls -l -a -h
+* Argument(s): ~/Documents
 ************************************/
-void token_input(char c[])
+void parse_input(char c[])
 {
-    char *token;
-    const char n[1] = " ";  // splits token by spaces
-    token = strtok(c, n);
 
-    // printf("Token(s):\n");
 
-    while (token != NULL)
-    {
-        // printf(" %s\n", token);
-        token = strtok(NULL, n);
-    }
+}
+
+/************************************
+* Function that executes the commands
+* that the user inputs.
+************************************/
+void execute_command(struct ShellCommand s)
+{
 
 }
