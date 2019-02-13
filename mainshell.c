@@ -36,9 +36,11 @@ char* get_directory();
 // function that returns user input
 char* get_user_input();
 // function to tokenizes input
-void token_input(char c[]);
+void parse_input(char c[]);
 // function to execute commands
 void execute_command(struct ShellCommand s);
+// function to debug token splits
+void tokenizer(char c[]);
 
 /************
 *   MAIN
@@ -46,11 +48,14 @@ void execute_command(struct ShellCommand s);
 int main()
 {
     char* input;
-    struct ShellCommand command;
+    struct ShellCommand c;
 
     chdir(getenv("HOME"));
+
     printf("\n%s$ ", get_directory());
-    input = get_user_input( );
+    input = get_user_input();
+    c.command = input;
+    execute_command(c);
 
     return 0;
 }
@@ -104,5 +109,39 @@ void parse_input(char c[])
 ************************************/
 void execute_command(struct ShellCommand s)
 {
+    if(strcmp(s.command, "cd") == 0)
+    {
+        chdir("s.arguments");
+    }
+    if(strcmp(s.command, "exit") == 0)
+    {
+        printf("Exited\n");
+        exit(0);
+    }
+}
 
+/***********************************
+* This function will not be
+* implemented. It is just used to
+* test how strings can be split up.
+*
+* These tests will be used to
+* implement the parse_input() function
+***********************************/
+void tokenizer(char c[])
+{
+    char *token;
+    const char n[1] = " ";  // splits token by spaces
+    token = strtok(c, n);
+    int count = 0;  // counts the tokens
+
+    printf("Token(s):\n");
+
+    while (token != NULL)
+    {
+        printf(" %s\n", token);
+        token = strtok(NULL, n);
+        count++;    // adds one to token count
+    }
+    printf("%d token(s) read\n\n", count);
 }
