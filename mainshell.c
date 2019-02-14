@@ -56,7 +56,7 @@ int main()
     input = get_user_input();
     parse_input(input);
 
-    execute_command(c);
+    // execute_command(c);
 
     return 0;
 }
@@ -101,18 +101,20 @@ char* get_user_input()
 void parse_input(char c[])
 {
     struct ShellCommand line;  // struct that will be created with parsed input
-    char commands[MAX_SIZE] = ""; // string to store commands
-    char arguments[MAX_SIZE] = ""; // string to store arguments
+    char commands[MAX_SIZE]; // string to store commands
+    char arguments[MAX_SIZE]; // string to store arguments
 
     char *token;
     const char n[1] = " ";  // splits token by spaces
     token = strtok(c, n);
+    printf("%s", token);
     strcat(token, commands);
 
     while (token != NULL)
     {
         // strchr() need to be further investigated
         // it is problematic and is giving a segmentation fault
+        printf("%s\n", token);
         token = strtok(NULL, n);
         strcat("\0", token);
         char* check = strchr(token, '-');
