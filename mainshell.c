@@ -82,7 +82,7 @@ char* get_user_input()
     static char input[MAX_SIZE];
 
     fgets(input, MAX_SIZE, stdin);  // stores user input from stdin to char input
-    // input[strcspn(input, "\n")] = '\0'; // removes null character at the end of input
+    input[strcspn(input, "\n")] = '\0'; // removes null character at the end of input
 
     return input;
 }
@@ -100,38 +100,47 @@ char* get_user_input()
 ************************************/
 void parse_input(char c[])
 {
-    struct ShellCommand line;  // struct that will be created with parsed input
-    char commands[MAX_SIZE]; // string to store commands
-    char arguments[MAX_SIZE]; // string to store arguments
+    int is_first_in_string = 1; // this to ensure that the first word is treated as a command
 
-    char *token;
+    struct ShellCommand line;  // struct that will be created with parsed input
+    char *commands[MAX_SIZE];  // string to store commands
+    char *arguments[MAX_SIZE];  // string to store arguments
+
+
+    char *token; // = malloc(MAX_SIZE);
     const char n[1] = " ";  // splits token by spaces
     token = strtok(c, n);
-    printf("%s", token);
-    strcat(token, commands);
 
+    commands[0] = malloc(sizeof(token)); // allocates memory
+    strcpy(commands[0], token);
+
+
+
+    int i, j;   // counters to be used in loop
+    i = 1; j = 0; // i is set at one because commands[0] is already assigned
     while (token != NULL)
     {
-        // strchr() need to be further investigated
-        // it is problematic and is giving a segmentation fault
-        printf("%s\n", token);
+        commands[i] = malloc(sizeof(token)); // allocates memory
+        arguments[j] = malloc(sizeof(token));   // allocates memory
+
+
+        if(strchr(token, '-') != NULL)  // this is causing a segmentation fault
+        {
+            strcpy(commands[i], token);
+            printf("Token: %s contains -\n", commands[i]);
+            i++;
+        }
+        if(strchr(token, '-') == NULL && !is_first_in_string)
+        {
+            strcpy(arguments[j], token);
+            printf("Token: %s does not have a dash.\n", arguments[j]);
+            j++;
+        }
         token = strtok(NULL, n);
-        strcat("\0", token);
-        char* check = strchr(token, '-');
-
-        if (check != NULL) // Line is likely the cause of error
-        {
-            strcat(token, commands);
-            printf("In if!\n");
-        }
-        else
-        {
-            strcat(token, arguments);
-            printf("In else\n");
-        }
-
+        is_first_in_string = 0;
     }
-    printf("Commands: %s, Arguments: %s\n", commands, arguments);
+
+    printf("Arguments 1 is %s", arguments[0]);
 }
 
 /************************************
