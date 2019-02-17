@@ -48,15 +48,17 @@ void tokenizer(char c[]);
 int main()
 {
     char* input;
-    struct ShellCommand c;
+    // struct ShellCommand c;
 
     chdir(getenv("HOME"));
-
     printf("\n%s$ ", get_directory());
-    input = get_user_input();
-    parse_input(input);
+    while(1)
+    {
+        input = get_user_input();
 
-    // execute_command(c);
+        execute_command(parse_input(input));
+        printf("\n%s$ ", get_directory());
+    }
 
     return 0;
 }
@@ -123,31 +125,31 @@ struct ShellCommand parse_input(char c[])
         if(strchr(token, '-') != NULL)  // this is causing a segmentation fault
         {
             strcpy(line.commands[i], token);
-            printf("Token: %s contains -\n", line.commands[i]);
+            // printf("Token: %s contains -\n", line.commands[i]);
             i++;
         }
         if(strchr(token, '-') == NULL && !is_first_in_string)
         {
             strcpy(line.arguments[j], token);
-            printf("Token: %s does not have a dash.\n", line.arguments[j]);
+            // printf("Token: %s does not have a dash.\n", line.arguments[j]);
             j++;
         }
         token = strtok(NULL, n);
         is_first_in_string = 0;
     }
-
-    printf("Commands: ");
-    for (int n = 0; n < i; n++)
-    {
-        printf("%s, ", line.commands[n]);
-
-    }
-    printf("\nArguments: ");
-    for (int k = 0; k < j; k++)
-    {
-        printf("%s, ", line.arguments[k]);
-    }
-    printf("\n");
+    //
+    // printf("Commands: ");
+    // for (int n = 0; n < i; n++)
+    // {
+    //     printf("%s, ", line.commands[n]);
+    //
+    // }
+    // printf("\nArguments: ");
+    // for (int k = 0; k < j; k++)
+    // {
+    //     printf("%s, ", line.arguments[k]);
+    // }
+    // printf("\n");
 
     return line;
 }
@@ -158,15 +160,19 @@ struct ShellCommand parse_input(char c[])
 ************************************/
 void execute_command(struct ShellCommand s)
 {
-    // if(strcmp(s.command, "cd") == 0)
-    // {
-    //     chdir("s.arguments");
-    // }
-    // if(strcmp(s.command, "exit") == 0)
-    // {
-    //     printf("Exited\n");
-    //     exit(0);
-    // }
+    if(strcmp(s.commands[0], "cd") == 0)
+    {
+        chdir(s.arguments[0]);
+    }
+    if(strcmp(s.commands[0], "exit") == 0)
+    {
+        printf("Exited\n");
+        exit(0);
+    }
+    if(strcmp(s.commands[0], "pwd") == 0)
+    {
+        printf("%s", get_directory());
+    }
 }
 
 /***********************************
