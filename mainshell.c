@@ -22,8 +22,8 @@
 *******************/
 struct ShellCommand
 {
-    char* command;
-    char* arguments;
+    char *commands[MAX_SIZE];
+    char *arguments[MAX_SIZE];
 };
 
 /***********************
@@ -36,7 +36,7 @@ char* get_directory();
 // function that returns user input
 char* get_user_input();
 // function to tokenizes input
-void parse_input(char c[]);
+struct ShellCommand parse_input(char c[]);
 // function to execute commands
 void execute_command(struct ShellCommand s);
 // function to debug token splits
@@ -98,21 +98,18 @@ char* get_user_input()
 * Command: ls -l -a -h
 * Argument(s): ~/Documents
 ************************************/
-void parse_input(char c[])
+struct ShellCommand parse_input(char c[])
 {
     int is_first_in_string = 1; // this to ensure that the first word is treated as a command
 
     struct ShellCommand line;  // struct that will be created with parsed input
-    char *commands[MAX_SIZE];  // string to store commands
-    char *arguments[MAX_SIZE];  // string to store arguments
-
-
     char *token; // = malloc(MAX_SIZE);
     const char n[1] = " ";  // splits token by spaces
     token = strtok(c, n);
 
-    commands[0] = malloc(sizeof(token)); // allocates memory
-    strcpy(commands[0], token);
+    // commands[0] = malloc(sizeof(token)); // allocates memory
+    line.commands[0] = malloc(sizeof(token));
+    strcpy(line.commands[0], token);
 
 
 
@@ -120,27 +117,39 @@ void parse_input(char c[])
     i = 1; j = 0; // i is set at one because commands[0] is already assigned
     while (token != NULL)
     {
-        commands[i] = malloc(sizeof(token)); // allocates memory
-        arguments[j] = malloc(sizeof(token));   // allocates memory
-
+        line.commands[i] = malloc(sizeof(token)); // allocates memory
+        line.arguments[j] = malloc(sizeof(token));   // allocates memory
 
         if(strchr(token, '-') != NULL)  // this is causing a segmentation fault
         {
-            strcpy(commands[i], token);
-            printf("Token: %s contains -\n", commands[i]);
+            strcpy(line.commands[i], token);
+            printf("Token: %s contains -\n", line.commands[i]);
             i++;
         }
         if(strchr(token, '-') == NULL && !is_first_in_string)
         {
-            strcpy(arguments[j], token);
-            printf("Token: %s does not have a dash.\n", arguments[j]);
+            strcpy(line.arguments[j], token);
+            printf("Token: %s does not have a dash.\n", line.arguments[j]);
             j++;
         }
         token = strtok(NULL, n);
         is_first_in_string = 0;
     }
 
-    printf("Arguments 1 is %s", arguments[0]);
+    printf("Commands: ");
+    for (int n = 0; n < i; n++)
+    {
+        printf("%s, ", line.commands[n]);
+
+    }
+    printf("\nArguments: ");
+    for (int k = 0; k < j; k++)
+    {
+        printf("%s, ", line.arguments[k]);
+    }
+    printf("\n");
+
+    return line;
 }
 
 /************************************
@@ -149,15 +158,15 @@ void parse_input(char c[])
 ************************************/
 void execute_command(struct ShellCommand s)
 {
-    if(strcmp(s.command, "cd") == 0)
-    {
-        chdir("s.arguments");
-    }
-    if(strcmp(s.command, "exit") == 0)
-    {
-        printf("Exited\n");
-        exit(0);
-    }
+    // if(strcmp(s.command, "cd") == 0)
+    // {
+    //     chdir("s.arguments");
+    // }
+    // if(strcmp(s.command, "exit") == 0)
+    // {
+    //     printf("Exited\n");
+    //     exit(0);
+    // }
 }
 
 /***********************************
