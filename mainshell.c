@@ -23,7 +23,7 @@
 *******************/
 struct ShellCommand
 {
-    char *commands[MAX_SIZE];
+    char *commands[MAX_SIZE];   //needs to be a string not array of string
     char *arguments[MAX_SIZE];
 };
 
@@ -82,11 +82,11 @@ char* get_directory()
 ************************************/
 char* get_user_input()
 {
-    static char input[MAX_SIZE];
+    char* input = malloc(MAX_SIZE);
 
     fgets(input, MAX_SIZE, stdin);  // stores user input from stdin to char input
-    input[strcspn(input, "\n")] = '\0'; // removes null character at the end of input
-
+    // input[strcspn(input, "\n")] = '\0'; // removes null character at the end of input
+    input = strtok(input,"\n");
     return input;
 }
 
@@ -138,9 +138,9 @@ struct ShellCommand parse_input(char c[])
         token = strtok(NULL, n);
         is_first_in_string = 0;
     }
-    i++;
-    line.commands[i] = NULL;
-    //
+    // i++;
+    // line.commands[i] = NULL;
+
     // printf("Commands: ");
     // for (int n = 0; n < i; n++)
     // {
@@ -164,6 +164,7 @@ struct ShellCommand parse_input(char c[])
 void execute_command(struct ShellCommand s)
 {
 
+    printf("%s\n", s.commands[0]);
     if(strcmp(s.commands[0], "cd") == 0)
     {
         chdir(s.arguments[0]);
@@ -177,14 +178,18 @@ void execute_command(struct ShellCommand s)
     {
         printf("%s", get_directory());
     }
-    if(strcmp(s.commands[0], "ls") == 0)
+    else
     {
         printf("YOU TRIED TO \n");
 
         // s.commands[0] = "/bin/ls";
         pid_t pid = fork();
         if (pid == 0)
+        {
+            printf("command = %s\n", s.commands[0]);
+
             execvp(s.commands[0], s.commands);
+        }
         else
         {
             // exit status
