@@ -138,8 +138,8 @@ struct ShellCommand parse_input(char c[])
         token = strtok(NULL, n);
         is_first_in_string = 0;
     }
-    // i++;
-    // line.commands[i] = NULL;
+
+    line.commands[i] = NULL; // THIS IS WHAT FIXED EVERYTHING
 
     // printf("Commands: ");
     // for (int n = 0; n < i; n++)
@@ -164,31 +164,31 @@ struct ShellCommand parse_input(char c[])
 void execute_command(struct ShellCommand s)
 {
 
-    printf("%s\n", s.commands[0]);
+
     if(strcmp(s.commands[0], "cd") == 0)
     {
         chdir(s.arguments[0]);
     }
     if(strcmp(s.commands[0], "exit") == 0)
     {
-        printf("Exited\n");
         exit(0);
     }
     if(strcmp(s.commands[0], "pwd") == 0)
     {
         printf("%s", get_directory());
     }
+    /********************************************
+    * Figuring out how to get this part to work
+    * caused me to rethink my entire existence.
+    * Null characters are the devil.
+    ********************************************/
     else
     {
-        printf("YOU TRIED TO \n");
-
-        // s.commands[0] = "/bin/ls";
         pid_t pid = fork();
         if (pid == 0)
         {
-            printf("command = %s\n", s.commands[0]);
-
             execvp(s.commands[0], s.commands);
+            exit(0);
         }
         else
         {
