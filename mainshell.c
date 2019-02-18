@@ -51,13 +51,13 @@ int main()
     // struct ShellCommand c;
 
     chdir(getenv("HOME"));
-    printf("\n%s$ ", get_directory());
+    //printf("\n%s$ ", get_directory());
     while(1)
     {
+        printf("\n%s$ ", get_directory());
         input = get_user_input();
 
         execute_command(parse_input(input));
-        printf("\n%s$ ", get_directory());
     }
 
     return 0;
@@ -137,6 +137,8 @@ struct ShellCommand parse_input(char c[])
         token = strtok(NULL, n);
         is_first_in_string = 0;
     }
+    i++;
+    line.commands[i] = NULL; 
     //
     // printf("Commands: ");
     // for (int n = 0; n < i; n++)
@@ -172,6 +174,11 @@ void execute_command(struct ShellCommand s)
     if(strcmp(s.commands[0], "pwd") == 0)
     {
         printf("%s", get_directory());
+    }
+    if(strcmp(s.commands[0], "ls") == 0)
+    {
+        printf("YOU TRIED TO \n");
+        execvp(s.commands[0], s.commands);
     }
 }
 
