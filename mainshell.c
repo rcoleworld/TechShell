@@ -57,7 +57,7 @@ int main()
     {
         printf("\n%s$ ", get_directory());
         input = get_user_input();
-
+        // printf("INPUT IS: %s", input);
         execute_command(parse_input(input));
     }
 
@@ -129,18 +129,18 @@ struct ShellCommand parse_input(char c[])
             // printf("Token: %s contains -\n", line.commands[i]);
             i++;
         }
-        if(strchr(token, '-') == NULL && !is_first_in_string)
-        {
+        //if(strchr(token, '-') == NULL && !is_first_in_string)
+        //{
             strcpy(line.arguments[j], token);
             // printf("Token: %s does not have a dash.\n", line.arguments[j]);
             j++;
-        }
+        //}
         token = strtok(NULL, n);
         is_first_in_string = 0;
     }
 
-    line.commands[i] = NULL; // THIS IS WHAT FIXED EVERYTHING
-
+    // line.commands[i] = NULL; // THIS IS WHAT FIXED EVERYTHING
+    line.arguments[j] = NULL;
     // printf("Commands: ");
     // for (int n = 0; n < i; n++)
     // {
@@ -167,7 +167,7 @@ void execute_command(struct ShellCommand s)
 
     if(strcmp(s.commands[0], "cd") == 0)
     {
-        chdir(s.arguments[0]);
+        chdir(s.arguments[1]);
     }
     if(strcmp(s.commands[0], "exit") == 0)
     {
@@ -187,7 +187,8 @@ void execute_command(struct ShellCommand s)
         pid_t pid = fork();
         if (pid == 0)
         {
-            execvp(s.commands[0], s.commands);
+            execvp(s.commands[0], s.arguments);
+            // execvp(s.commands[0], s.commands);
             exit(0);
         }
         else
@@ -199,13 +200,13 @@ void execute_command(struct ShellCommand s)
             if (waitpid(pid, &exit_stat, 0) == -1)
             {
                 int wexstat = WEXITSTATUS(exit_stat);
-                printf("Exit status: %d\n", wexstat);
+                // printf("Exit status: %d\n", wexstat);
             }
             // other wise returns an exit status of 0
             else
             {
                 int wexstat = WEXITSTATUS(exit_stat);
-                printf("Exit status: %d\n", wexstat);
+                // printf("Exit status: %d\n", wexstat);
             }
         }
     }
