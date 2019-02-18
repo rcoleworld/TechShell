@@ -138,7 +138,7 @@ struct ShellCommand parse_input(char c[])
         is_first_in_string = 0;
     }
     i++;
-    line.commands[i] = NULL; 
+    line.commands[i] = NULL;
     //
     // printf("Commands: ");
     // for (int n = 0; n < i; n++)
@@ -178,7 +178,11 @@ void execute_command(struct ShellCommand s)
     if(strcmp(s.commands[0], "ls") == 0)
     {
         printf("YOU TRIED TO \n");
-        execvp(s.commands[0], s.commands);
+
+        s.commands[0] = "/bin/ls";
+        pid_t pid = fork();
+        if (pid == 0)
+            execv(s.commands[0], s.commands);
     }
 }
 
