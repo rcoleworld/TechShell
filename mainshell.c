@@ -85,8 +85,8 @@ char* get_user_input()
     char* input = malloc(MAX_SIZE);
 
     fgets(input, MAX_SIZE, stdin);  // stores user input from stdin to char input
-    // input[strcspn(input, "\n")] = '\0'; // removes null character at the end of input
     input = strtok(input,"\n");
+
     return input;
 }
 
@@ -109,13 +109,14 @@ struct ShellCommand parse_input(char c[])
     char *token; // = malloc(MAX_SIZE);
     const char n[1] = " ";  // splits token by spaces
     token = strtok(c, n);
-
-    // commands[0] = malloc(sizeof(token)); // allocates memory
+    // handles the case of no input
+    if(token == NULL)
+    {
+        line.commands[0] = "empty";
+        return line;
+    }
     line.commands[0] = malloc(sizeof(token));
     strcpy(line.commands[0], token);
-
-
-
     int i, j;   // counters to be used in loop
     i = 1; j = 0; // i is set at one because commands[0] is already assigned
     while (token != NULL)
@@ -129,12 +130,10 @@ struct ShellCommand parse_input(char c[])
             // printf("Token: %s contains -\n", line.commands[i]);
             i++;
         }
-        //if(strchr(token, '-') == NULL && !is_first_in_string)
-        //{
-            strcpy(line.arguments[j], token);
-            // printf("Token: %s does not have a dash.\n", line.arguments[j]);
-            j++;
-        //}
+        // adds everything to arguments
+        strcpy(line.arguments[j], token);
+        j++;
+
         token = strtok(NULL, n);
         is_first_in_string = 0;
     }
@@ -164,7 +163,10 @@ struct ShellCommand parse_input(char c[])
 void execute_command(struct ShellCommand s)
 {
 
-
+    if(strcmp(s.commands[0], "\n") == 0)
+    {
+        printf("\n");
+    }
     if(strcmp(s.commands[0], "cd") == 0)
     {
         chdir(s.arguments[1]);
