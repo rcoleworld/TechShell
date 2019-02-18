@@ -162,6 +162,7 @@ struct ShellCommand parse_input(char c[])
 ************************************/
 void execute_command(struct ShellCommand s)
 {
+    
     if(strcmp(s.commands[0], "cd") == 0)
     {
         chdir(s.arguments[0]);
@@ -179,7 +180,7 @@ void execute_command(struct ShellCommand s)
     {
         printf("YOU TRIED TO \n");
 
-        s.commands[0] = "/bin/ls";
+        // s.commands[0] = "/bin/ls";
         pid_t pid = fork();
         if (pid == 0)
             execv(s.commands[0], s.commands);
