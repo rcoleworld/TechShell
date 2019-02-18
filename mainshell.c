@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <limits.h>
 #include <stdlib.h>
+#include <wait.h>
 
 /***********************
 *        MACROS
@@ -162,7 +163,7 @@ struct ShellCommand parse_input(char c[])
 ************************************/
 void execute_command(struct ShellCommand s)
 {
-    
+
     if(strcmp(s.commands[0], "cd") == 0)
     {
         chdir(s.arguments[0]);
@@ -183,7 +184,25 @@ void execute_command(struct ShellCommand s)
         // s.commands[0] = "/bin/ls";
         pid_t pid = fork();
         if (pid == 0)
-            execv(s.commands[0], s.commands);
+            execvp(s.commands[0], s.commands);
+        else
+        {
+            // exit status
+            int exit_stat;
+            // checks if exit status throws an error
+            // if so returns an exit status of 1
+            if (waitpid(pid, &exit_stat, 0) == -1)
+            {
+                int wexstat = WEXITSTATUS(exit_stat);
+                printf("Exit status: %d\n", wexstat);
+            }
+            // other wise returns an exit status of 0
+            else
+            {
+                int wexstat = WEXITSTATUS(exit_stat);
+                printf("Exit status: %d\n", wexstat);
+            }
+        }
     }
 }
 
