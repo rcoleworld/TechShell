@@ -11,6 +11,7 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <wait.h>
+#include <errno.h>
 
 /***********************
 *        MACROS
@@ -53,12 +54,17 @@ void tokenizer(char c[]);
 int main()
 {
     char* input;
+    char* home_directory = getenv("HOME");
 
     chdir(getenv("HOME"));
 
     while(1)
     {
-        printf("\n%s$ ", get_directory());
+        // this shorthands home directory
+        if (strcmp(get_directory(),home_directory) == 0)
+            printf("\n~$ ");
+        else
+            printf("\n%s$ ", get_directory());
         input = get_user_input();
         execute_command(parse_input(input));
     }
@@ -88,6 +94,8 @@ char* get_user_input()
 
     fgets(input, MAX_SIZE, stdin);  // stores user input from stdin to char input
     input = strtok(input,"\n");
+
+    fflush(stdin);
 
     return input;
 }
@@ -176,17 +184,18 @@ void execute_command(struct ShellCommand s)
         printf("\n");
     }
 
-    if (strcmp(s.commands[0], "cd") == 0)
+    else if (strcmp(s.commands[0], "cd") == 0)
     {
-        chdir(s.arguments[1]);
+        if (chdir(s.arguments[1]) == -1)
+            printf("error: %d (%s)\n", errno, strerror(errno)); // handles errors
     }
 
 
-    if (strcmp(s.commands[0], "exit") == 0)
+    else if (strcmp(s.commands[0], "exit") == 0)
     {
         exit(0);
     }
-    if (strcmp(s.commands[0], "pwd") == 0)
+    else if (strcmp(s.commands[0], "pwd") == 0)
     {
         printf("%s", get_directory());
     }
@@ -198,27 +207,35 @@ void execute_command(struct ShellCommand s)
     ********************************************/
     else
     {
+
+        // fork
         pid_t pid = fork();
+        // new argument variable to handle redirection
         char **inoutargs = malloc(MAX_SIZE);
 
+        // in child process
         if (pid == 0)
         {
             // to determine if no input or output
             if (s.input == NULL && s.output == NULL)
             {
-                execvp(s.commands[0], s.arguments);
+                if (execvp(s.commands[0], s.arguments) == -1)
+                    printf("error: %d (%s)\n", errno, strerror(errno));
                 exit(0);
             }
             else
             {
+                // loops through arguments
                 for (int i = 0; i < sizeof(s.arguments); i++)
                 {
+                    // reads files
                     if (strcmp(s.arguments[i], "<") == 0)
                     {
                         FILE* infile = fopen(s.input, "r");
-                        dup2(fileno(infile), 1);
+                        dup2(fileno(infile), 0);
                         fclose(infile);
                     }
+                    // writes to files
                     else if(strcmp(s.arguments[i], ">") == 0)
                     {
                         FILE* outfile = fopen(s.output, "w");
@@ -230,26 +247,13 @@ void execute_command(struct ShellCommand s)
                         inoutargs[i] = s.arguments[i];
                 }
                 execvp(s.commands[0], inoutargs);
-                exit(0);
             }
+            exit(0);
         }
+        // parent process
         else
         {
-            // exit status
-            int exit_stat;
-            // checks if exit status throws an error
-            // if so returns an exit status of 1
-            if (waitpid(pid, &exit_stat, 0) == -1)
-            {
-                int wexstat = WEXITSTATUS(exit_stat);
-                // printf("Exit status: %d\n", wexstat);
-            }
-            // other wise returns an exit status of 0
-            else
-            {
-                int wexstat = WEXITSTATUS(exit_stat);
-                // printf("Exit status: %d\n", wexstat);
-            }
+            wait(0);
         }
     }
 }
