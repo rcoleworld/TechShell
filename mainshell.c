@@ -2,8 +2,9 @@
 * Tech Shell Project CSC 222
 * Group: Reginald Thomas, Branson Hanzo
 * Start Date: 2/9/19
+* Status: Everything works excep reading files as of now.
+* Error handling still needs to be implemented.
 *******************************************************************************/
-
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -18,6 +19,7 @@
 #define DEBUG 0
 // Max size of user input
 #define MAX_SIZE 256
+
 /*******************
 *     STRUCTS
 *******************/
@@ -25,6 +27,8 @@ struct ShellCommand
 {
     char *commands[MAX_SIZE];   //needs to be a string not array of string
     char *arguments[MAX_SIZE];
+    char *input;
+    char *output;
 };
 
 /***********************
@@ -106,9 +110,10 @@ struct ShellCommand parse_input(char c[])
     const char n[1] = " ";  // splits token by spaces
 
     token = strtok(c, n);
-
+    line.input = NULL;
+    line.output = NULL;
     // handles the case of no input
-    if(token == NULL)
+    if (token == NULL)
     {
         line.commands[0] = "empty";
         return line;
@@ -124,7 +129,7 @@ struct ShellCommand parse_input(char c[])
         line.commands[i] = malloc(sizeof(token)); // allocates memory
         line.arguments[j] = malloc(sizeof(token));   // allocates memory
 
-        if(strchr(token, '-') != NULL)  // this is causing a segmentation fault
+        if (strchr(token, '-') != NULL)
         {
             strcpy(line.commands[i], token);
             i++;
@@ -139,6 +144,23 @@ struct ShellCommand parse_input(char c[])
     // THIS IS WHAT FIXED EVERYTHING
     line.arguments[j] = NULL;
 
+    // This handles a input and out put file parsing
+    for (int n = 0; n < j; n++)
+    {
+        // output file will come after ">"
+        if (strcmp(line.arguments[n], ">") == 0)
+        {
+            line.output = line.arguments[n+1];
+            // printf("outputfile = %s\n", line.output);
+        }
+        // input file will come after "<"
+        else if(strcmp(line.arguments[n], "<") == 0)
+        {
+            line.input = line.arguments[n+1];
+            // printf("inputfile = %s\n", line.input);
+        }
+    }
+
     return line;
 }
 
@@ -149,22 +171,22 @@ struct ShellCommand parse_input(char c[])
 void execute_command(struct ShellCommand s)
 {
 
-    if(strcmp(s.commands[0], "\n") == 0)
+    if (strcmp(s.commands[0], "\n") == 0)
     {
         printf("\n");
     }
 
-    if(strcmp(s.commands[0], "cd") == 0)
+    if (strcmp(s.commands[0], "cd") == 0)
     {
         chdir(s.arguments[1]);
     }
 
 
-    if(strcmp(s.commands[0], "exit") == 0)
+    if (strcmp(s.commands[0], "exit") == 0)
     {
         exit(0);
     }
-    if(strcmp(s.commands[0], "pwd") == 0)
+    if (strcmp(s.commands[0], "pwd") == 0)
     {
         printf("%s", get_directory());
     }
@@ -177,12 +199,39 @@ void execute_command(struct ShellCommand s)
     else
     {
         pid_t pid = fork();
+        char **inoutargs = malloc(MAX_SIZE);
 
         if (pid == 0)
         {
-            execvp(s.commands[0], s.arguments);
-            // execvp(s.commands[0], s.commands);
-            exit(0);
+            // to determine if no input or output
+            if (s.input == NULL && s.output == NULL)
+            {
+                execvp(s.commands[0], s.arguments);
+                exit(0);
+            }
+            else
+            {
+                for (int i = 0; i < sizeof(s.arguments); i++)
+                {
+                    if (strcmp(s.arguments[i], "<") == 0)
+                    {
+                        FILE* infile = fopen(s.input, "r");
+                        dup2(fileno(infile), 1);
+                        fclose(infile);
+                    }
+                    else if(strcmp(s.arguments[i], ">") == 0)
+                    {
+                        FILE* outfile = fopen(s.output, "w");
+                        dup2(fileno(outfile), 1);
+                        fclose(outfile);
+                        execvp(s.commands[0], inoutargs);
+                    }
+                    else
+                        inoutargs[i] = s.arguments[i];
+                }
+                execvp(s.commands[0], inoutargs);
+                exit(0);
+            }
         }
         else
         {
