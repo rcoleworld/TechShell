@@ -2,8 +2,6 @@
 * Tech Shell Project CSC 222
 * Group: Reginald Thomas, Branson Hanzo
 * Start Date: 2/9/19
-* Status: Everything works excep reading files as of now.
-* Error handling still needs to be implemented.
 *******************************************************************************/
 #include <stdio.h>
 #include <string.h>
